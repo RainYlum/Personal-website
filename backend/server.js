@@ -151,7 +151,7 @@ app.post('/api/login', async (req, res) => {
 
     // 更新最后登录时间
     await pool.execute(
-      'UPDATE user SET last_login_at = NOW() WHERE id = ?',
+      'UPDATE user SET last_login = NOW() WHERE id = ?',
       [user.id]
     );
 
@@ -257,7 +257,7 @@ app.put('/api/user', async (req, res) => {
     );
 
     const [users] = await pool.execute(
-      'SELECT id, username, nickname, email, avatar, created_at, last_login_at FROM user WHERE id = ?',
+      'SELECT id, username, nickname, email, avatar, created_at, last_login FROM user WHERE id = ?',
       [decoded.userId]
     );
 

@@ -98,7 +98,7 @@ function renderUserProfile(user) {
   if (profileUsername) profileUsername.textContent = '@' + user.username;
   if (profileEmail) profileEmail.textContent = user.email;
   if (profileCreatedAt) profileCreatedAt.textContent = formatDate(user.created_at);
-  if (profileLastLogin) profileLastLogin.textContent = formatDate(user.last_login_at);
+  if (profileLastLogin) profileLastLogin.textContent = formatDate(user.last_login);
 }
 
 function toggleEditProfile() {
