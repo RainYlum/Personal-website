@@ -1,6 +1,11 @@
 # 依赖目录
 node_modules/
 
+# 环境变量文件（重要！包含敏感信息）
+.env
+.env.local
+.env.*.local
+
 # 日志文件
 *.log
 
@@ -13,6 +18,12 @@ desktop.ini
 dist/
 build/
 
-# 环境变量
-.env
-.env.local
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+tmp/
+temp/

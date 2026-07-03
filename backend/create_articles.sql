@@ -1,0 +1,20 @@
+USE rylum;
+
+CREATE TABLE IF NOT EXISTS articles (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(200) NOT NULL,
+  content LONGTEXT NOT NULL,
+  summary VARCHAR(500),
+  author_id INT NOT NULL,
+  category VARCHAR(50) DEFAULT 'uncategorized',
+  status TINYINT DEFAULT 1,
+  views INT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (author_id) REFERENCES user(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO articles (title, content, summary, author_id, category) VALUES 
+('RE:START', '<p>This is a story about dreams and hope. In this challenging world, each of us is searching for our own path.</p><p>Life is like a long journey, sometimes smooth, sometimes rough. But it is these ups and downs that make our lives rich and colorful.</p><h2>Begin a New Journey</h2><p>Today, I decide to start over. Let go of past troubles and embrace new challenges. Every day is a new beginning, every moment is full of infinite possibilities.</p><p>In this digital age, we have unprecedented opportunities. Through the internet, we can connect with the world, share our stories, and learn new knowledge.</p><h2>Pursue Your Dreams</h2><p>Dreams are the compass of life, guiding us forward. No matter how difficult it is, as long as we have dreams in our hearts, we will find a way out.</p><p>Let us bravely take the first step together and move towards our dreams. Remember, success is not the end, but another beginning.</p><blockquote class="article-quote">"The greatest challenge in life is discovering who you are; the second greatest is being satisfied with what you discover."</blockquote><p>Thank you for reading this article, hope it brings you some inspiration and strength. Let us work together to create a better future!</p>', 'This is an article about dreams and hope, telling the courage to start over and the determination to pursue dreams.', 1, 'Personal Diary'),
+('Tech Blog: Frontend Development Insights', '<p>As a frontend developer, I have accumulated a lot of experience and insights in my work, and I want to share them with you today.</p><h2>Learning Path</h2><p>Frontend technology is changing rapidly, and maintaining enthusiasm for learning is very important. From HTML, CSS to JavaScript, and various frameworks, every step requires continuous exploration.</p><p>React, Vue, Angular and other mainstream frameworks have their own characteristics. Choosing a learning path that suits you is crucial.</p><h2>Best Practices</h2><p>Code standards, performance optimization, user experience, these are all key points that need attention in frontend development.</p><p>Using component-based development reasonably can greatly improve code maintainability and reusability.</p><blockquote class="article-quote">"Good code is written for people to read, and incidentally runs on machines."</blockquote><p>Hope these insights are helpful to you, let us work hard together!</p>', 'Sharing frontend development learning experiences and best practices.', 1, 'Tech Share'),
+('Travel Diary: Explore the Unknown World', '<p>Travel is a kind of attitude towards life. It allows us to step out of our comfort zone and explore the unknown world.</p><h2>The Meaning of Departure</h2><p>Every journey is a growth. On the road, we will meet different people and things, broadening our horizons.</p><p>Whether it is mountains, rivers, lakes, seas or cities and towns, they all have unique charm waiting for us to discover.</p><h2>Stories on the Road</h2><p>During the journey, I met many interesting people and heard many touching stories.</p><p>These experiences have become precious treasures in my life.</p><blockquote class="article-quote">"The world is a book, and those who do not travel read only one page."</blockquote><p>Hope everyone can step out of their homes and explore this beautiful world!</p>', 'Recording what I saw and heard during the journey and my reflections.', 1, 'Travel Diary');

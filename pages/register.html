@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>注册 - Rylum</title>
+  <link rel="stylesheet" href="../css/register.css">
+</head>
+
+<body>
+  <div class="register-container">
+    <div class="register-form">
+      <h2>创建账号</h2>
+      <div class="message" id="message"></div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" placeholder="请输入用户名" required>
+        </div>
+        <div class="form-group">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" placeholder="请输入邮箱" required>
+        </div>
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" placeholder="请输入密码" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">确认密码</label>
+          <input type="password" id="confirmPassword" placeholder="请再次输入密码" required>
+        </div>
+        <button type="submit" class="register-btn">注册</button>
+      </form>
+      <div class="login-link">
+        已有账号？<a href="login.html">立即登录</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const message = document.getElementById('message');
+
+      if (password !== confirmPassword) {
+        message.textContent = '两次输入的密码不一致';
+        message.className = 'message error';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          message.textContent = '注册成功！即将跳转到登录页面...';
+          message.className = 'message success';
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+        } else {
+          message.textContent = data.message;
+          message.className = 'message error';
+        }
+      } catch (error) {
+        message.textContent = '注册失败，请稍后重试';
+        message.className = 'message error';
+        console.error('注册失败:', error);
+      }
+    });
+  </script>
+</body>
+
+</html>
