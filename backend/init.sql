@@ -9,7 +9,6 @@ CREATE TABLE IF NOT EXISTS user (
   username VARCHAR(50) NOT NULL UNIQUE,
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  nickname VARCHAR(50),
   avatar VARCHAR(255) DEFAULT '/assets/img/user.png',
   status TINYINT DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -50,9 +49,9 @@ CREATE TABLE IF NOT EXISTS comments (
 -- ============================================
 -- 插入测试数据
 -- ============================================
-INSERT IGNORE INTO user (username, email, password, nickname) VALUES 
-('admin', 'admin@rylum.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', '管理员'),
-('rain', 'rainylum6936@163.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'Rain');
+INSERT IGNORE INTO user (username, email, password) VALUES 
+('admin', 'admin@rylum.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq'),
+('rain', 'rainylum6936@163.com', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq');
 
 INSERT IGNORE INTO articles (title, content, summary, author_id, category) VALUES 
 ('重新出发', '<p>这是一个关于梦想与希望的故事。在这个充满挑战的世界里，每个人都在寻找属于自己的道路。</p><p>人生就像一场漫长的旅程，有时平坦，有时坎坷。但正是这些起起落落，让我们的生活变得丰富多彩。</p><h2>开启新的旅程</h2><p>今天，我决定重新出发。放下过去的烦恼，迎接新的挑战。每一天都是新的开始，每一刻都充满无限可能。</p><p>在这个数字时代，我们拥有前所未有的机遇。通过互联网，我们可以连接世界，分享故事，学习新知。</p><h2>追逐梦想</h2><p>梦想是人生的指南针，指引我们前行。无论多么困难，只要心中有梦，就一定能找到出路。</p><p>让我们一起勇敢地迈出第一步，朝着梦想前进。记住，成功不是终点，而是另一个开始。</p><blockquote class="article-quote">"人生最大的挑战是发现自己是谁；第二大挑战是对所发现的感到满意。"</blockquote><p>感谢阅读这篇文章，希望它能给你带来一些启发和力量。让我们共同努力，创造更美好的未来！</p>', '这是一篇关于梦想与希望的文章，讲述重新出发的勇气和追逐梦想的决心。', 1, '个人日记'),

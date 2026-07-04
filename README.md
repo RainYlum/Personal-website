@@ -172,7 +172,6 @@ http://localhost:3000
 | username | VARCHAR(50) | 用户名（唯一） |
 | email | VARCHAR(100) | 邮箱（唯一） |
 | password | VARCHAR(255) | 密码（加密） |
-| nickname | VARCHAR(50) | 昵称 |
 | avatar | VARCHAR(255) | 头像路径 |
 | status | TINYINT | 状态 |
 | created_at | DATETIME | 创建时间 |

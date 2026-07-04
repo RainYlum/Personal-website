@@ -162,7 +162,6 @@ app.post('/api/login', async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        nickname: user.nickname,
         email: user.email
       }
     });
@@ -184,8 +183,36 @@ app.get('/api/user', async (req, res) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const [users] = await pool.execute(
-      'SELECT id, username, nickname, email, avatar FROM user WHERE id = ?',
+      'SELECT id, username, email, avatar, created_at, last_login FROM user WHERE id = ?',
       [decoded.userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+
+    res.json({
+      success: true,
+      user: users[0]
+    });
+  } catch (error) {
+    console.error('获取用户信息错误:', error);
+    res.status(500).json({ success: false, message: '服务器内部错误' });
+  }
+});
+
+// 获取指定用户信息（公开接口，用于查看他人资料）
+app.get('/api/user/:id', async (req, res) => {
+  const userId = parseInt(req.params.id);
+
+  if (isNaN(userId)) {
+    return res.status(400).json({ success: false, message: '无效的用户ID' });
+  }
+
+  try {
+    const [users] = await pool.execute(
+      'SELECT id, username, avatar, created_at, last_login FROM user WHERE id = ? AND status = 1',
+      [userId]
     );
 
     if (users.length === 0) {
@@ -210,7 +237,7 @@ app.put('/api/user', async (req, res) => {
     return res.status(401).json({ success: false, message: '未登录' });
   }
 
-  const { nickname, email, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -227,11 +254,6 @@ app.put('/api/user', async (req, res) => {
 
     let updateFields = [];
     let updateValues = [];
-
-    if (nickname) {
-      updateFields.push('nickname = ?');
-      updateValues.push(nickname);
-    }
 
     if (email) {
       updateFields.push('email = ?');
@@ -257,7 +279,7 @@ app.put('/api/user', async (req, res) => {
     );
 
     const [users] = await pool.execute(
-      'SELECT id, username, nickname, email, avatar, created_at, last_login FROM user WHERE id = ?',
+      'SELECT id, username, email, avatar, created_at, last_login FROM user WHERE id = ?',
       [decoded.userId]
     );
 
@@ -305,6 +327,50 @@ app.post('/api/upload/avatar', upload.single('avatar'), async (req, res) => {
   }
 });
 
+// 发布文章接口
+app.post('/api/articles', async (req, res) => {
+  console.log('API hit: POST /api/articles');
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: '未登录' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const { title, category, summary, content } = req.body;
+
+    if (!title || !category || !summary || !content) {
+      return res.json({ success: false, message: '请填写完整的文章信息' });
+    }
+
+    const [result] = await pool.execute(
+      'INSERT INTO articles (title, content, summary, author_id, category, status) VALUES (?, ?, ?, ?, ?, 1)',
+      [title, content, summary, decoded.userId, category]
+    );
+
+    const articleId = result.insertId;
+
+    const [articles] = await pool.execute(
+      'SELECT a.id, a.title, a.summary, a.category, a.views, a.created_at, u.username as author_name ' +
+      'FROM articles a LEFT JOIN user u ON a.author_id = u.id WHERE a.id = ?',
+      [articleId]
+    );
+
+    res.json({
+      success: true,
+      message: '文章发布成功',
+      article: articles[0]
+    });
+  } catch (error) {
+    console.error('发布文章错误:', error);
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: '登录已过期，请重新登录' });
+    }
+    res.status(500).json({ success: false, message: '服务器内部错误' });
+  }
+});
+
 // 获取文章列表接口
 app.get('/api/articles', async (req, res) => {
   console.log('API hit: /api/articles');
@@ -314,7 +380,7 @@ app.get('/api/articles', async (req, res) => {
 
   try {
     const [articles] = await pool.query(
-      'SELECT a.id, a.title, a.summary, a.category, a.views, a.created_at, u.nickname as author_name ' +
+      'SELECT a.id, a.title, a.summary, a.category, a.views, a.created_at, u.username as author_name ' +
       'FROM articles a ' +
       'LEFT JOIN user u ON a.author_id = u.id ' +
       'WHERE a.status = 1 ' +
@@ -359,7 +425,7 @@ app.get('/api/articles/:id', async (req, res) => {
     );
 
     const [articles] = await pool.query(
-      'SELECT a.id, a.title, a.content, a.summary, a.category, a.views, a.created_at, a.updated_at, u.nickname as author_name, u.avatar as author_avatar ' +
+      'SELECT a.id, a.title, a.content, a.summary, a.category, a.views, a.created_at, a.updated_at, u.id as author_id, u.username as author_name, u.avatar as author_avatar ' +
       'FROM articles a ' +
       'LEFT JOIN user u ON a.author_id = u.id ' +
       'WHERE a.id = ? AND a.status = 1',
@@ -386,7 +452,7 @@ app.get('/api/articles/:id/comments', async (req, res) => {
 
   try {
     const [comments] = await pool.query(
-      'SELECT c.id, c.content, c.created_at, COALESCE(u.nickname, u.username) as author_name, u.avatar as author_avatar ' +
+      'SELECT c.id, c.content, c.created_at, u.id as author_id, u.username as author_name, u.avatar as author_avatar ' +
       'FROM comments c ' +
       'LEFT JOIN user u ON c.user_id = u.id ' +
       'WHERE c.article_id = ? ' +

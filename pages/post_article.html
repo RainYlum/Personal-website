@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rylum - 发布文章</title>
+  <link rel="stylesheet" href="../css/index.css">
+</head>
+
+<body>
+  <div class="header">
+    <div class="nav">
+      <ul>
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../index.html#main">论坛</a></li>
+        <li><a href="#">资源</a></li>
+        <li><a href="#">音乐</a></li>
+        <li><a href="user_center.html">用户中心</a></li>
+        <li><a href="#">???</a></li>
+      </ul>
+
+      <button class="type-change-button">&#8644;</button>
+
+      <div class="user-card" id="userCard">
+        <p class="user-name">未登录</p>
+        <img class="user-img" src="../assets/img/user.png" alt="用户头像">
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-header" id="dropdownHeader">
+            <img class="dropdown-avatar" src="../assets/img/user.png" alt="头像">
+            <div class="dropdown-info">
+              <p class="dropdown-name">测试用户</p>
+              <p class="dropdown-email">test@example.com</p>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" id="logoutBtn">退出登录</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="main" id="main">
+
+    <div class="main-content">
+      <div class="post-article-container">
+        <div class="post-article-header">
+          <h2>发布文章</h2>
+        </div>
+
+        <form class="post-article-form" id="postArticleForm">
+          <div class="form-group">
+            <label for="articleTitle">文章标题</label>
+            <input type="text" id="articleTitle" placeholder="请输入文章标题" required>
+          </div>
+
+          <div class="form-group">
+            <label for="articleCategory">分类</label>
+            <select id="articleCategory" required>
+              <option value="">请选择分类</option>
+              <option value="技术分享">技术分享</option>
+              <option value="个人日记">个人日记</option>
+              <option value="旅行日记">旅行日记</option>
+              <option value="生活随笔">生活随笔</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="articleSummary">文章摘要</label>
+            <textarea id="articleSummary" rows="3" placeholder="请输入文章摘要（简短描述文章内容）" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="articleContent">文章内容</label>
+            <div class="editor-toolbar">
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-btn" data-action="h2" title="标题2"><strong>H2</strong></button>
+                <button type="button" class="toolbar-btn" data-action="h3" title="标题3"><strong>H3</strong></button>
+              </div>
+              <div class="toolbar-divider"></div>
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-btn" data-action="bold" title="加粗"><strong>B</strong></button>
+                <button type="button" class="toolbar-btn" data-action="italic" title="斜体"><em>I</em></button>
+                <button type="button" class="toolbar-btn" data-action="strikethrough" title="删除线"><del>S</del></button>
+              </div>
+              <div class="toolbar-divider"></div>
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-btn" data-action="code" title="行内代码">&lt;/&gt;</button>
+                <button type="button" class="toolbar-btn" data-action="codeblock" title="代码块">{}&lt;/&gt;</button>
+              </div>
+              <div class="toolbar-divider"></div>
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-btn" data-action="quote" title="引用">"</button>
+                <button type="button" class="toolbar-btn" data-action="list" title="无序列表">☰</button>
+                <button type="button" class="toolbar-btn" data-action="olist" title="有序列表">☱</button>
+              </div>
+              <div class="toolbar-divider"></div>
+              <div class="toolbar-group">
+                <button type="button" class="toolbar-btn" data-action="link" title="链接">🔗</button>
+                <button type="button" class="toolbar-btn" data-action="image" title="图片">🖼</button>
+                <button type="button" class="toolbar-btn" data-action="hr" title="分割线">─</button>
+              </div>
+            </div>
+            <textarea id="articleContent" rows="20" placeholder="请输入文章内容...&#10;提示：可以使用工具栏插入小标题、引用等格式"
+              required></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" id="cancelPostBtn">取消</button>
+            <button type="submit" class="confirm-btn">发布文章</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="left-nav">
+      <h2 class="nav-title">侧边栏</h2>
+      <ul>
+        <li><a href="../index.html#main">论坛</a></li>
+        <li><a href="user_center.html">用户中心</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>Copyright &copy; 2023 Rylum. All rights reserved.</p>
+    <p>Contact: <a href="mailto:contact@rylum.com">contact@rylum.com</a></p>
+    <p>Address: 123 Main St, Anytown, USA</p>
+    <p>Phone: +1234567890</p>
+  </div>
+
+  <div class="musicPlayer">
+    <template id="musicPlayerTemplate"></template>
+  </div>
+
+</body>
+
+<script src="../js/post_article.js"></script>
+
+</html>

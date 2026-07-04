@@ -1,5 +1,23 @@
 // index.js
 
+// 公告弹窗关闭逻辑
+document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.getElementById('announcementOverlay');
+  const closeBtn = document.getElementById('announcementClose');
+
+  if (overlay) {
+    closeBtn.addEventListener('click', function () {
+      overlay.style.display = 'none';
+    });
+
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) {
+        overlay.style.display = 'none';
+      }
+    });
+  }
+});
+
 // 全局变量
 let currentUser = null;
 
@@ -23,8 +41,7 @@ async function checkLoginStatus() {
       if (data.success) {
         currentUser = data.user;
 
-        // 更新用户名称显示（优先使用昵称）
-        userName.textContent = data.user.nickname || data.user.username || '用户';
+        userName.textContent = data.user.username || '用户';
 
         // 更新头像显示
         if (data.user.avatar) {
@@ -32,8 +49,7 @@ async function checkLoginStatus() {
           dropdownAvatar.src = data.user.avatar;
         }
 
-        // 更新下拉菜单用户信息
-        dropdownName.textContent = data.user.nickname || data.user.username || '用户';
+        dropdownName.textContent = data.user.username || '用户';
         dropdownEmail.textContent = data.user.email || '未绑定邮箱';
 
       } else {
@@ -231,14 +247,19 @@ async function loadArticle(articleId, pushHistory = true) {
           <h1 class="article-title">${article.title}</h1>
           
           <div class="article-meta">
-            <span class="meta-item">作者：${article.author_name || '未知作者'}</span>
+            <span class="meta-item">
+              <a href="./pages/user_center.html?id=${article.author_id}" class="article-author-link">
+                <img class="article-author-avatar" src="${article.author_avatar && article.author_avatar.startsWith('/') ? article.author_avatar : './assets/img/user.png'}" alt="头像">
+                <span>${article.author_name || '未知作者'}</span>
+              </a>
+            </span>
             <span class="meta-item">发布时间：${formatDate(article.created_at)}</span>
             <span class="meta-item">分类：${article.category}</span>
             <span class="meta-item">浏览：${article.views}</span>
           </div>
           
           <div class="article-body">
-            ${article.content}
+            ${parseMarkdown(article.content)}
           </div>
         </article>
         
@@ -280,6 +301,43 @@ function formatDate(dateStr) {
   });
 }
 
+function parseMarkdown(content) {
+  if (!content) return '';
+
+  let html = content;
+
+  html = html.replace(/<[^>]*>/g, '');
+
+  html = html.replace(/^#{1,2}\s(.+)$/gim, '<h2>$1</h2>');
+  html = html.replace(/^#{3}\s(.+)$/gim, '<h3>$1</h3>');
+  html = html.replace(/^#{4}\s(.+)$/gim, '<h4>$1</h4>');
+  html = html.replace(/^#{5}\s(.+)$/gim, '<h5>$1</h5>');
+  html = html.replace(/^#{6}\s(.+)$/gim, '<h6>$1</h6>');
+
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="article-image">');
+
+  html = html.replace(/^\d+\.\s(.+)$/gim, '<li>$1</li>');
+  html = html.replace(/^[-*+]\s(.+)$/gim, '<li>$1</li>');
+
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+
+  html = html.replace(/^> (.+)$/gim, '<blockquote>$1</blockquote>');
+
+  html = html.replace(/^-{3,}$/gim, '<hr>');
+
+  html = html.replace(/\n/g, '<br>');
+
+  return html;
+}
+
 async function loadForumList(pushHistory = true) {
   const mainContent = document.querySelector('.main-content');
   if (!mainContent) return;
@@ -295,6 +353,7 @@ async function loadForumList(pushHistory = true) {
           <div class="forum-header">
             <h1 class="forum-title">论坛</h1>
             <p class="forum-subtitle">共 ${data.pagination.total} 篇文章</p>
+            <button class="post-article-btn" id="postArticleBtn">发布文章</button>
           </div>
           <div class="forum-list">
             ${articles.map(article => `
@@ -325,6 +384,18 @@ async function loadForumList(pushHistory = true) {
           }
         });
       });
+
+      const postArticleBtn = document.getElementById('postArticleBtn');
+      if (postArticleBtn) {
+        postArticleBtn.addEventListener('click', () => {
+          const token = localStorage.getItem('token');
+          if (token) {
+            window.location.href = './pages/post_article.html';
+          } else {
+            window.location.href = './pages/login.html?redirect=post_article';
+          }
+        });
+      }
     } else {
       mainContent.innerHTML = `<p style="text-align: center; color: #999;">${data.message || '加载失败'}</p>`;
     }
@@ -346,8 +417,10 @@ async function loadComments(articleId) {
       commentsList.innerHTML = data.data.map(comment => `
         <div class="comment-item">
           <div class="comment-author">
-            <img class="comment-avatar" src="${comment.author_avatar && comment.author_avatar.startsWith('/') ? comment.author_avatar : './assets/img/user.png'}" alt="头像">
-            <span class="comment-author-name">${comment.author_name || '未知用户'}</span>
+            <a href="./pages/user_center.html?id=${comment.author_id}" class="comment-author-link">
+              <img class="comment-avatar" src="${comment.author_avatar && comment.author_avatar.startsWith('/') ? comment.author_avatar : './assets/img/user.png'}" alt="头像">
+              <span class="comment-author-name">${comment.author_name || '未知用户'}</span>
+            </a>
           </div>
           <div class="comment-content">${comment.content}</div>
           <div class="comment-time">${formatDate(comment.created_at)}</div>

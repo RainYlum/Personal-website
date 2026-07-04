@@ -1,4 +1,5 @@
 let currentUser = null;
+let isVisitor = false;
 
 function formatDate(dateStr) {
   if (!dateStr) return '-';
@@ -46,8 +47,8 @@ function updateUserCard(user) {
   const dropdownName = document.querySelector('.dropdown-name');
   const dropdownEmail = document.querySelector('.dropdown-email');
 
-  if (userName) userName.textContent = user.nickname || user.username;
-  if (dropdownName) dropdownName.textContent = user.nickname || user.username;
+  if (userName) userName.textContent = user.username;
+  if (dropdownName) dropdownName.textContent = user.username;
   if (dropdownEmail) dropdownEmail.textContent = user.email;
 
   const avatarUrl = user.avatar && user.avatar.startsWith('/') ? user.avatar : './assets/img/user.png';
@@ -55,7 +56,51 @@ function updateUserCard(user) {
   if (dropdownAvatar) dropdownAvatar.src = avatarUrl;
 }
 
+function enableVisitorMode() {
+  isVisitor = true;
+  
+  const visitorLabel = document.getElementById('visitorLabel');
+  if (visitorLabel) visitorLabel.style.display = 'block';
+  
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  if (editProfileBtn) editProfileBtn.style.display = 'none';
+  
+  const postArticleBtn = document.getElementById('postArticleBtn');
+  if (postArticleBtn) postArticleBtn.style.display = 'none';
+  
+  const emailDetail = document.getElementById('emailDetail');
+  if (emailDetail) emailDetail.style.display = 'none';
+  
+  const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+  if (changeAvatarBtn) changeAvatarBtn.style.display = 'none';
+}
+
 async function loadUserProfile() {
+  const params = new URLSearchParams(window.location.search);
+  const targetUserId = params.get('id');
+  
+  if (targetUserId) {
+    try {
+      const response = await fetch(`/api/user/${targetUserId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        renderUserProfile(data.user);
+        enableVisitorMode();
+        checkLoginStatus();
+        return;
+      } else {
+        alert(data.message || '用户不存在');
+        window.location.href = '../index.html';
+      }
+    } catch (error) {
+      console.error('加载用户信息失败:', error);
+      alert('加载用户信息失败');
+      window.location.href = '../index.html';
+    }
+    return;
+  }
+  
   const token = localStorage.getItem('token');
   if (!token) {
     window.location.href = './pages/login.html?redirect=user_center';
@@ -86,7 +131,6 @@ async function loadUserProfile() {
 function renderUserProfile(user) {
   const profileAvatar = document.getElementById('profileAvatar');
   const profileNickname = document.getElementById('profileNickname');
-  const profileUsername = document.getElementById('profileUsername');
   const profileEmail = document.getElementById('profileEmail');
   const profileCreatedAt = document.getElementById('profileCreatedAt');
   const profileLastLogin = document.getElementById('profileLastLogin');
@@ -94,14 +138,15 @@ function renderUserProfile(user) {
   if (profileAvatar) {
     profileAvatar.src = user.avatar && user.avatar.startsWith('/') ? user.avatar : './assets/img/user.png';
   }
-  if (profileNickname) profileNickname.textContent = user.nickname || user.username;
-  if (profileUsername) profileUsername.textContent = '@' + user.username;
-  if (profileEmail) profileEmail.textContent = user.email;
+  if (profileNickname) profileNickname.textContent = user.username;
+  if (profileEmail) profileEmail.textContent = user.email || '-';
   if (profileCreatedAt) profileCreatedAt.textContent = formatDate(user.created_at);
   if (profileLastLogin) profileLastLogin.textContent = formatDate(user.last_login);
 }
 
 function toggleEditProfile() {
+  if (isVisitor) return;
+  
   const editSection = document.getElementById('editProfileSection');
   if (editSection.style.display === 'none') {
     editSection.style.display = 'block';
@@ -114,7 +159,6 @@ function toggleEditProfile() {
 function fillEditForm() {
   if (!currentUser) return;
 
-  document.getElementById('editNickname').value = currentUser.nickname || '';
   document.getElementById('editEmail').value = currentUser.email || '';
   document.getElementById('editPassword').value = '';
   document.getElementById('editConfirmPassword').value = '';
@@ -122,17 +166,18 @@ function fillEditForm() {
 
 async function updateProfile(event) {
   event.preventDefault();
+  
+  if (isVisitor) return;
 
   const token = localStorage.getItem('token');
   if (!token) return;
 
-  const nickname = document.getElementById('editNickname').value.trim();
   const email = document.getElementById('editEmail').value.trim();
   const password = document.getElementById('editPassword').value;
   const confirmPassword = document.getElementById('editConfirmPassword').value;
 
-  if (!nickname || !email) {
-    alert('请填写昵称和邮箱');
+  if (!email) {
+    alert('请填写邮箱');
     return;
   }
 
@@ -148,7 +193,7 @@ async function updateProfile(event) {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ nickname, email, password })
+      body: JSON.stringify({ email, password })
     });
 
     const data = await response.json();
@@ -168,7 +213,7 @@ async function updateProfile(event) {
 
 function logout() {
   localStorage.removeItem('token');
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
 
 function handleUserCardClick(e) {
@@ -188,6 +233,8 @@ function handleDocumentClick(e) {
 let previewImg = null;
 
 function openAvatarModal() {
+  if (isVisitor) return;
+  
   const modal = document.getElementById('avatarModal');
   if (modal) {
     modal.style.display = 'block';
@@ -223,6 +270,8 @@ function previewAvatar(event) {
 }
 
 async function uploadAvatar() {
+  if (isVisitor) return;
+  
   const token = localStorage.getItem('token');
   if (!token) {
     alert('请先登录');
@@ -284,6 +333,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const editProfileBtn = document.getElementById('editProfileBtn');
   if (editProfileBtn) editProfileBtn.addEventListener('click', toggleEditProfile);
+
+  const postArticleBtn = document.getElementById('postArticleBtn');
+  if (postArticleBtn) {
+    postArticleBtn.addEventListener('click', () => {
+      if (isVisitor) {
+        window.location.href = './login.html?redirect=post_article';
+      } else {
+        window.location.href = 'post_article.html';
+      }
+    });
+  }
 
   const cancelEditBtn = document.getElementById('cancelEditBtn');
   if (cancelEditBtn) cancelEditBtn.addEventListener('click', toggleEditProfile);
