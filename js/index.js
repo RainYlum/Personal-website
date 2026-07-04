@@ -301,6 +301,7 @@ function formatDate(dateStr) {
   });
 }
 
+// 解析Markdown内容为HTML
 function parseMarkdown(content) {
   if (!content) return '';
 
@@ -338,6 +339,7 @@ function parseMarkdown(content) {
   return html;
 }
 
+// 加载论坛列表
 async function loadForumList(pushHistory = true) {
   const mainContent = document.querySelector('.main-content');
   if (!mainContent) return;
@@ -405,6 +407,7 @@ async function loadForumList(pushHistory = true) {
   }
 }
 
+// 加载文章评论
 async function loadComments(articleId) {
   const commentsList = document.getElementById('commentsList');
   if (!commentsList) return;
@@ -435,6 +438,7 @@ async function loadComments(articleId) {
   }
 }
 
+// 绑定评论提交事件
 function bindCommentSubmit(articleId) {
   const submitBtn = document.getElementById('submitCommentBtn');
   if (!submitBtn) return;
@@ -498,6 +502,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// 处理弹出状态变化
 function handlePopState(event) {
   if (event.state) {
     if (event.state.page === 'forum') {
@@ -510,6 +515,7 @@ function handlePopState(event) {
   }
 }
 
+// 初始化页面状态
 function initPageFromURL() {
   const params = new URLSearchParams(window.location.search);
   const articleId = params.get('article');
