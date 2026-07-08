@@ -1,52 +1,32 @@
-// post_article.js
-
-let currentUser = null;
-
-// 检查登录状态
-async function checkLoginStatus() {
+async function checkLoginStatusForPost() {
   const token = localStorage.getItem('token');
-  const userName = document.querySelector('.user-name');
-  const userImg = document.querySelector('.user-img');
-  const dropdownAvatar = document.querySelector('.dropdown-avatar');
-  const dropdownName = document.querySelector('.dropdown-name');
-  const dropdownEmail = document.querySelector('.dropdown-email');
+  if (!token) {
+    window.location.href = '/pages/login.html?redirect=post_article';
+    return;
+  }
 
-  if (token) {
-    try {
-      const response = await fetch('/api/user', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+  try {
+    const response = await fetch('/api/user', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (data.success) {
-        currentUser = data.user;
-        userName.textContent = data.user.username || '用户';
-
-        if (data.user.avatar) {
-          userImg.src = data.user.avatar;
-          dropdownAvatar.src = data.user.avatar;
-        }
-
-        dropdownName.textContent = data.user.username || '用户';
-        dropdownEmail.textContent = data.user.email || '';
-      } else {
-        localStorage.removeItem('token');
-        window.location.href = './login.html?redirect=post_article';
-      }
-    } catch (error) {
-      console.error('检查登录状态失败:', error);
+    if (data.success) {
+      currentUser = data.user;
+    } else {
       localStorage.removeItem('token');
-      window.location.href = './login.html?redirect=post_article';
+      window.location.href = '/pages/login.html?redirect=post_article';
     }
-  } else {
-    window.location.href = './login.html?redirect=post_article';
+  } catch (error) {
+    console.error('检查登录状态失败:', error);
+    localStorage.removeItem('token');
+    window.location.href = '/pages/login.html?redirect=post_article';
   }
 }
 
-// 文章发布表单提交事件
-document.addEventListener('DOMContentLoaded', function () {
-  checkLoginStatus();
+function initPostArticlePage() {
+  checkLoginStatusForPost();
 
   const postArticleForm = document.getElementById('postArticleForm');
   const cancelPostBtn = document.getElementById('cancelPostBtn');
@@ -80,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (data.success) {
         alert('文章发布成功！');
-        window.location.href = '../index.html?article=' + data.article.id;
+        window.location.replace('/index.html?article=' + data.article.id);
       } else {
         alert('发布失败：' + data.message);
       }
@@ -90,14 +70,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // 取消发布按钮点击事件
   cancelPostBtn.addEventListener('click', function () {
-    window.location.href = '../index.html#main';
+    window.location.href = '/index.html#main';
   });
 
   const articleContent = document.getElementById('articleContent');
 
-  // 工具栏按钮点击事件
   document.querySelectorAll('.toolbar-btn').forEach(btn => {
     btn.addEventListener('click', function () {
       const action = this.dataset.action;
@@ -154,9 +132,8 @@ document.addEventListener('DOMContentLoaded', function () {
           after = '](url)';
           break;
         case 'image':
-          before = '![';
-          after = '](image-url)';
-          break;
+          document.getElementById('imageUpload').click();
+          return;
         case 'hr':
           before = '\n---\n';
           after = '';
@@ -172,47 +149,44 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  const userCard = document.getElementById('userCard');
-  const userDropdown = document.getElementById('userDropdown');
+  const imageUpload = document.getElementById('imageUpload');
+  imageUpload.addEventListener('change', async function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  // 点击用户卡片显示下拉菜单
-  userCard.addEventListener('click', function (e) {
-    e.stopPropagation();
-    userDropdown.style.display = userDropdown.style.display === 'none' ? 'block' : 'none';
-  });
+    const token = localStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('image', file);
 
-  // 点击文档外部关闭下拉菜单
-  document.addEventListener('click', function (e) {
-    if (!userCard.contains(e.target)) {
-      userDropdown.style.display = 'none';
-    }
-  });
-
-  // 退出登录按钮点击事件
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', async function () {
     try {
-      const response = await fetch('/api/logout', {
+      const response = await fetch('/api/upload/article', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
       });
+
       const data = await response.json();
+
       if (data.success) {
-        localStorage.removeItem('token');
-        currentUser = null;
-        window.location.href = '../index.html';
+        const imageMarkdown = `![图片](${data.url})`;
+        const start = articleContent.selectionStart;
+        const end = articleContent.selectionEnd;
+        const newValue = articleContent.value.substring(0, start) + imageMarkdown + articleContent.value.substring(end);
+        articleContent.value = newValue;
+        articleContent.focus();
+        articleContent.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length);
+      } else {
+        alert('图片上传失败：' + data.message);
       }
     } catch (error) {
-      console.error('退出登录失败:', error);
-      localStorage.removeItem('token');
-      currentUser = null;
-      window.location.href = '../index.html';
+      console.error('图片上传失败:', error);
+      alert('图片上传失败，请稍后重试');
     }
-  });
 
-  // 点击下拉菜单头像跳转用户中心
-  const dropdownHeader = document.getElementById('dropdownHeader');
-  dropdownHeader.addEventListener('click', function () {
-    window.location.href = 'user_center.html';
+    imageUpload.value = '';
   });
-});
+}
+
+document.addEventListener('componentsLoaded', initPostArticlePage);

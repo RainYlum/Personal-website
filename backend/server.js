@@ -47,8 +47,59 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB 限制
 });
 
-// 静态资源服务（用于访问上传的头像）
+// 文章图片存储配置
+const articleStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '..', 'uploads', 'articles');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split('.').pop();
+    const filename = `article_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`;
+    cb(null, filename);
+  }
+});
+
+const articleUpload = multer({
+  storage: articleStorage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+// 静态资源服务（用于访问上传的文件）
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+// 获取音乐列表 API
+app.get('/api/music/list', (req, res) => {
+  const audioDir = path.join(__dirname, '..', 'assets', 'audio');
+  
+  fs.readdir(audioDir, (err, files) => {
+    if (err) {
+      console.error('读取音乐目录失败:', err);
+      return res.json({ success: false, message: '读取音乐目录失败', songs: [] });
+    }
+    
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];
+    const songs = files
+      .filter(file => {
+        const ext = path.extname(file).toLowerCase();
+        return audioExtensions.includes(ext);
+      })
+      .map(file => {
+        const ext = path.extname(file);
+        const title = file.replace(ext, '');
+        return {
+          title: title,
+          src: `/assets/audio/${file}`
+        };
+      });
+    
+    res.json({ success: true, songs: songs });
+  });
+});
 
 // 从环境变量读取数据库配置
 const pool = mysql.createPool({
@@ -290,6 +341,36 @@ app.put('/api/user', async (req, res) => {
     });
   } catch (error) {
     console.error('更新用户资料错误:', error);
+    res.status(500).json({ success: false, message: '服务器内部错误' });
+  }
+});
+
+// 文章图片上传接口
+app.post('/api/upload/article', articleUpload.single('image'), async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: '未登录' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: '请选择要上传的图片' });
+  }
+
+  try {
+    jwt.verify(token, JWT_SECRET);
+    const imagePath = `/uploads/articles/${req.file.filename}`;
+
+    res.json({
+      success: true,
+      message: '图片上传成功',
+      url: imagePath
+    });
+  } catch (error) {
+    console.error('上传图片错误:', error);
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: '登录已过期，请重新登录' });
+    }
     res.status(500).json({ success: false, message: '服务器内部错误' });
   }
 });

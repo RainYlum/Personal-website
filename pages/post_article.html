@@ -5,45 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rylum - 发布文章</title>
-  <link rel="stylesheet" href="../css/index.css">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/musicPlayer.css">
+  <link rel="stylesheet" href="/css/agent.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-  <div class="header">
-    <div class="nav">
-      <ul>
-        <li><a href="../index.html">首页</a></li>
-        <li><a href="../index.html#main">论坛</a></li>
-        <li><a href="#">资源</a></li>
-        <li><a href="#">音乐</a></li>
-        <li><a href="user_center.html">用户中心</a></li>
-        <li><a href="#">???</a></li>
-      </ul>
-
-      <button class="type-change-button">&#8644;</button>
-
-      <div class="user-card" id="userCard">
-        <p class="user-name">未登录</p>
-        <img class="user-img" src="../assets/img/user.png" alt="用户头像">
-
-        <div class="user-dropdown" id="userDropdown">
-          <div class="dropdown-header" id="dropdownHeader">
-            <img class="dropdown-avatar" src="../assets/img/user.png" alt="头像">
-            <div class="dropdown-info">
-              <p class="dropdown-name">测试用户</p>
-              <p class="dropdown-email">test@example.com</p>
-            </div>
-          </div>
-          <div class="dropdown-divider"></div>
-          <div class="dropdown-menu">
-            <button class="dropdown-item" id="logoutBtn">退出登录</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <div class="main" id="main">
 
     <div class="main-content">
@@ -108,6 +76,7 @@
             </div>
             <textarea id="articleContent" rows="20" placeholder="请输入文章内容...&#10;提示：可以使用工具栏插入小标题、引用等格式"
               required></textarea>
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
           </div>
 
           <div class="form-actions">
@@ -121,26 +90,19 @@
     <div class="left-nav">
       <h2 class="nav-title">侧边栏</h2>
       <ul>
-        <li><a href="../index.html#main">论坛</a></li>
-        <li><a href="user_center.html">用户中心</a></li>
+        <li><a href="/index.html#main">论坛</a></li>
+        <li><a href="/pages/user_center.html">用户中心</a></li>
       </ul>
     </div>
 
   </div>
 
-  <div class="footer">
-    <p>Copyright &copy; 2023 Rylum. All rights reserved.</p>
-    <p>Contact: <a href="mailto:contact@rylum.com">contact@rylum.com</a></p>
-    <p>Address: 123 Main St, Anytown, USA</p>
-    <p>Phone: +1234567890</p>
-  </div>
-
-  <div class="musicPlayer">
-    <template id="musicPlayerTemplate"></template>
-  </div>
-
 </body>
 
-<script src="../js/post_article.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/post_article.js"></script>
+<script src="/js/musicPlayer.js"></script>
+<script src="/js/agent.js"></script>
+<script src="/js/components.js"></script>
 
 </html>

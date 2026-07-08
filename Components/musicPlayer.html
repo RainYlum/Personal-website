@@ -1,18 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+<div class="musicPlayer minimized" id="musicPlayer">
+  <div class="musicPlayer-toggle" id="musicPlayerToggle">🎵</div>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>音乐播放器</title>
-  <link rel="stylesheet" href="../css/musicPlayer.css">
-</head>
+  <div class="musicPlayer-content" style="display: none;">
+    <div class="musicPlayer-header">
+      <div class="musicPlayer-title" id="musicPlayerTitle">选择歌曲</div>
+      <button class="musicPlayer-close" id="musicPlayerClose">✕</button>
+    </div>
 
-<body>
-  <div class="musicPlayer">
-    <audio src="../assets/audio/mmj/MORE MORE JUMP！ - JUMPIN' OVER !.mp3" controls></audio>
+    <div class="musicPlayer-progress">
+      <span class="musicPlayer-time" id="musicPlayerCurrentTime">0:00</span>
+      <div class="musicPlayer-progress-bar">
+        <div class="musicPlayer-progress-fill" id="musicPlayerProgress"></div>
+      </div>
+      <span class="musicPlayer-time" id="musicPlayerDuration">0:00</span>
+    </div>
+
+    <div class="musicPlayer-controls">
+      <button class="musicPlayer-btn" id="musicPlayerPrev" title="上一首"><i class="bi bi-skip-backward-fill"></i></button>
+      <button class="musicPlayer-btn musicPlayer-play-btn" id="musicPlayerPlay" title="播放"><i
+          class="bi bi-play-fill"></i></button>
+      <button class="musicPlayer-btn" id="musicPlayerNext" title="下一首"><i class="bi bi-skip-forward-fill"></i></button>
+      <button class="musicPlayer-btn" id="musicPlayerLoop" title="循环模式"><i class="bi bi-repeat"></i></button>
+    </div>
+
+    <div class="musicPlayer-volume">
+      <span><i class="bi bi-volume-up-fill"></i></span>
+      <input type="range" id="musicPlayerVolume" min="0" max="100" value="50">
+    </div>
+
+    <div class="musicPlayer-playlist">
+    </div>
   </div>
 
-</body>
-
-</html>
+  <audio id="musicPlayerAudio" preload="metadata">
+</div>
