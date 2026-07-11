@@ -30,19 +30,19 @@ function updateUserCard(user) {
 
 function enableVisitorMode() {
   isVisitor = true;
-  
+
   const visitorLabel = document.getElementById('visitorLabel');
   if (visitorLabel) visitorLabel.style.display = 'block';
-  
+
   const editProfileBtn = document.getElementById('editProfileBtn');
   if (editProfileBtn) editProfileBtn.style.display = 'none';
-  
+
   const postArticleBtn = document.getElementById('postArticleBtn');
   if (postArticleBtn) postArticleBtn.style.display = 'none';
-  
+
   const emailDetail = document.getElementById('emailDetail');
   if (emailDetail) emailDetail.style.display = 'none';
-  
+
   const changeAvatarBtn = document.getElementById('changeAvatarBtn');
   if (changeAvatarBtn) changeAvatarBtn.style.display = 'none';
 }
@@ -50,29 +50,31 @@ function enableVisitorMode() {
 async function loadUserProfile() {
   const params = new URLSearchParams(window.location.search);
   const targetUserId = params.get('id');
-  
+
   if (targetUserId) {
     try {
       const response = await fetch(`/api/user/${targetUserId}`);
       const data = await response.json();
-      
+
       if (data.success) {
         renderUserProfile(data.user);
         enableVisitorMode();
         checkLoginStatus();
         return;
       } else {
-        alert(data.message || '用户不存在');
-        window.location.href = '/index.html';
+        showErrorToast(data.message || '用户不存在', function () {
+          window.location.href = '/index.html';
+        });
       }
     } catch (error) {
       console.error('加载用户信息失败:', error);
-      alert('加载用户信息失败');
-      window.location.href = '/index.html';
+      showErrorToast('加载用户信息失败', function () {
+        window.location.href = '/index.html';
+      });
     }
     return;
   }
-  
+
   const token = localStorage.getItem('token');
   if (!token) {
     window.location.href = '/pages/login.html?redirect=user_center';
@@ -118,7 +120,7 @@ function renderUserProfile(user) {
 
 function toggleEditProfile() {
   if (isVisitor) return;
-  
+
   const editSection = document.getElementById('editProfileSection');
   if (editSection.style.display === 'none') {
     editSection.style.display = 'block';
@@ -138,7 +140,7 @@ function fillEditForm() {
 
 async function updateProfile(event) {
   event.preventDefault();
-  
+
   if (isVisitor) return;
 
   const token = localStorage.getItem('token');
@@ -149,12 +151,12 @@ async function updateProfile(event) {
   const confirmPassword = document.getElementById('editConfirmPassword').value;
 
   if (!email) {
-    alert('请填写邮箱');
+    showInfoToast('请填写邮箱');
     return;
   }
 
   if (password && password !== confirmPassword) {
-    alert('两次密码输入不一致');
+    showInfoToast('两次密码输入不一致');
     return;
   }
 
@@ -170,16 +172,16 @@ async function updateProfile(event) {
 
     const data = await response.json();
     if (data.success) {
-      alert('资料更新成功');
+      showSuccessToast('资料更新成功');
       toggleEditProfile();
       loadUserProfile();
       updateUserCard(data.user);
     } else {
-      alert(data.message || '更新失败');
+      showErrorToast(data.message || '更新失败');
     }
   } catch (error) {
     console.error('更新资料失败:', error);
-    alert('更新失败，请稍后重试');
+    showErrorToast('更新失败，请稍后重试');
   }
 }
 

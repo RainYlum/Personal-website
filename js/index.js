@@ -143,7 +143,15 @@ function parseMarkdown(content) {
 
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="article-image">');
 
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, text, url) {
+    if (url === 'url') {
+      return `<a href="javascript:void(0)" onclick="showInfoToast('该链接未配置，请联系管理员')" style="color: #999; text-decoration: none;">${text}</a>`;
+    }
+    if (/^(https?:\/\/|\/)/i.test(url)) {
+      return `<a href="${url}" target="_blank" rel="noopener">${text}</a>`;
+    }
+    return `<a href="https://${url}" target="_blank" rel="noopener">${text}</a>`;
+  });
 
   html = html.replace(/^\d+\.\s(.+)$/gim, '<li>$1</li>');
   html = html.replace(/^[-*+]\s(.+)$/gim, '<li>$1</li>');
@@ -263,7 +271,7 @@ function bindCommentSubmit(articleId) {
   submitBtn.addEventListener('click', async () => {
     const content = document.getElementById('commentContent');
     if (!content || !content.value.trim()) {
-      alert('请输入评论内容');
+      showInfoToast('请输入评论内容');
       return;
     }
 
@@ -287,12 +295,13 @@ function bindCommentSubmit(articleId) {
       if (data.success) {
         content.value = '';
         loadComments(articleId);
+        showSuccessToast('评论发布成功');
       } else {
-        alert(data.message || '评论失败');
+        showErrorToast(data.message || '评论失败');
       }
     } catch (error) {
       console.error('评论失败:', error);
-      alert('评论失败，请稍后重试');
+      showErrorToast('评论失败，请稍后重试');
     }
   });
 }

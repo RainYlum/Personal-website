@@ -139,7 +139,7 @@ async function uploadAvatar() {
   const file = input.files[0];
 
   if (!file) {
-    alert('请先选择图片');
+    showInfoToast('请先选择图片');
     return;
   }
 
@@ -170,13 +170,13 @@ async function uploadAvatar() {
       }
 
       closeAvatarModal();
-      alert('头像上传成功！');
+      showSuccessToast('头像上传成功！');
     } else {
-      alert(data.message || '上传失败');
+      showErrorToast(data.message || '上传失败');
     }
   } catch (error) {
     console.error('上传失败:', error);
-    alert('上传失败，请检查网络连接');
+    showErrorToast('上传失败，请检查网络连接');
   }
 }
 
@@ -261,4 +261,51 @@ function initCommonHeader() {
       }
     });
   }
+}
+
+function showToast(title, message, icon = '📢', onClose = null) {
+  let toastOverlay = document.getElementById('toastOverlay');
+  if (!toastOverlay) {
+    toastOverlay = document.createElement('div');
+    toastOverlay.id = 'toastOverlay';
+    toastOverlay.className = 'toast-overlay';
+    document.body.appendChild(toastOverlay);
+  }
+
+  toastOverlay.innerHTML = `
+    <div class="toast-modal">
+      <button class="toast-close" id="toastClose">&times;</button>
+      <div class="toast-icon">${icon}</div>
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <button class="toast-btn" id="toastBtn">确定</button>
+    </div>
+  `;
+
+  toastOverlay.classList.add('show');
+
+  function closeToast() {
+    toastOverlay.classList.remove('show');
+    if (onClose) onClose();
+  }
+
+  document.getElementById('toastClose').addEventListener('click', closeToast);
+  document.getElementById('toastBtn').addEventListener('click', closeToast);
+  toastOverlay.addEventListener('click', (e) => {
+    if (e.target === toastOverlay) {
+      closeToast();
+    }
+  });
+}
+
+function showSuccessToast(message, onClose = null) {
+  showToast('操作成功', message, '✅', onClose);
+}
+
+function showErrorToast(message, onClose = null) {
+  showToast('操作失败', message, '❌', onClose);
+}
+
+function showInfoToast(message, onClose = null) {
+  showToast('提示', message, 'ℹ️', onClose);
 }

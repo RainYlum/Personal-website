@@ -25,6 +25,74 @@ async function checkLoginStatusForPost() {
   }
 }
 
+function parseMarkdown(content) {
+  if (!content) return '';
+
+  let html = content;
+
+  html = html.replace(/<[^>]*>/g, '');
+
+  html = html.replace(/^#{1,2}\s(.+)$/gim, '<h2>$1</h2>');
+  html = html.replace(/^#{3}\s(.+)$/gim, '<h3>$1</h3>');
+  html = html.replace(/^#{4}\s(.+)$/gim, '<h4>$1</h4>');
+  html = html.replace(/^#{5}\s(.+)$/gim, '<h5>$1</h5>');
+  html = html.replace(/^#{6}\s(.+)$/gim, '<h6>$1</h6>');
+
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (match, text, url) {
+    if (url === 'url') {
+      return `<a href="javascript:void(0)" onclick="showInfoToast('该链接未配置，请联系管理员')" style="color: #999; text-decoration: none;">${text}</a>`;
+    }
+    if (/^(https?:\/\/|\/)/i.test(url)) {
+      return `<a href="${url}" target="_blank" rel="noopener">${text}</a>`;
+    }
+    return `<a href="https://${url}" target="_blank" rel="noopener">${text}</a>`;
+  });
+
+  html = html.replace(/^\d+\.\s(.+)$/gim, '<li>$1</li>');
+  html = html.replace(/^[-*+]\s(.+)$/gim, '<li>$1</li>');
+
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+
+  html = html.replace(/^> (.+)$/gim, '<blockquote>$1</blockquote>');
+
+  html = html.replace(/^-{3,}$/gim, '<hr>');
+
+  html = html.replace(/\n\n/g, '</p><p>');
+  html = html.replace(/\n/g, '<br>');
+
+  html = '<p>' + html + '</p>';
+
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p><br><\/p>/g, '');
+  html = html.replace(/<p><ul>/g, '<ul>');
+  html = html.replace(/<\/ul><\/p>/g, '</ul>');
+  html = html.replace(/<p><blockquote>/g, '<blockquote>');
+  html = html.replace(/<\/blockquote><\/p>/g, '</blockquote>');
+  html = html.replace(/<p><pre>/g, '<pre>');
+  html = html.replace(/<\/pre><\/p>/g, '</pre>');
+  html = html.replace(/<p><h/g, '<h');
+  html = html.replace(/<\/h(\d)><\/p>/g, '</h$1>');
+  html = html.replace(/<p><hr><\/p>/g, '<hr>');
+
+  return html;
+}
+
+function updatePreview() {
+  const content = document.getElementById('articleContent').value;
+  const previewContent = document.getElementById('previewContent');
+  if (previewContent) {
+    previewContent.innerHTML = parseMarkdown(content);
+  }
+}
+
 function initPostArticlePage() {
   checkLoginStatusForPost();
 
@@ -40,7 +108,7 @@ function initPostArticlePage() {
     const content = document.getElementById('articleContent').value.trim();
 
     if (!title || !category || !summary || !content) {
-      alert('请填写完整的文章信息');
+      showInfoToast('请填写完整的文章信息');
       return;
     }
 
@@ -59,14 +127,15 @@ function initPostArticlePage() {
       const data = await response.json();
 
       if (data.success) {
-        alert('文章发布成功！');
-        window.location.replace('/index.html?article=' + data.article.id);
+        showSuccessToast('文章发布成功！', function () {
+          window.location.replace('/index.html?article=' + data.article.id);
+        });
       } else {
-        alert('发布失败：' + data.message);
+        showErrorToast('发布失败：' + data.message);
       }
     } catch (error) {
       console.error('发布文章失败:', error);
-      alert('发布失败，请稍后重试');
+      showErrorToast('发布失败，请稍后重试');
     }
   });
 
@@ -128,8 +197,13 @@ function initPostArticlePage() {
           after = '';
           break;
         case 'link':
-          before = '[';
-          after = '](url)';
+          const urlInput = prompt('请输入链接地址:', 'https://');
+          if (urlInput) {
+            before = '[';
+            after = `](${urlInput})`;
+          } else {
+            return;
+          }
           break;
         case 'image':
           document.getElementById('imageUpload').click();
@@ -146,8 +220,24 @@ function initPostArticlePage() {
       articleContent.focus();
       const newCursorPos = start + before.length + selectedText.length;
       articleContent.setSelectionRange(newCursorPos, newCursorPos);
+
+      updatePreview();
     });
   });
+
+  document.querySelectorAll('.editor-tab').forEach(tab => {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.editor-panel').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('editor' + this.dataset.tab.charAt(0).toUpperCase() + this.dataset.tab.slice(1)).classList.add('active');
+      if (this.dataset.tab === 'preview') {
+        updatePreview();
+      }
+    });
+  });
+
+  articleContent.addEventListener('input', updatePreview);
 
   const imageUpload = document.getElementById('imageUpload');
   imageUpload.addEventListener('change', async function (e) {
@@ -177,12 +267,14 @@ function initPostArticlePage() {
         articleContent.value = newValue;
         articleContent.focus();
         articleContent.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length);
+        showSuccessToast('图片上传成功');
+        updatePreview();
       } else {
-        alert('图片上传失败：' + data.message);
+        showErrorToast('图片上传失败：' + data.message);
       }
     } catch (error) {
       console.error('图片上传失败:', error);
-      alert('图片上传失败，请稍后重试');
+      showErrorToast('图片上传失败，请稍后重试');
     }
 
     imageUpload.value = '';

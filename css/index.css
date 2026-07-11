@@ -1070,6 +1070,87 @@ body * {
   margin-top: 25px !important;
 }
 
+.toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-overlay.show {
+  display: flex;
+}
+
+.toast-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 35px 40px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.4s ease;
+}
+
+.toast-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+.toast-modal h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.toast-modal p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.toast-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  line-height: 1;
+}
+
+.toast-close:hover {
+  color: #c57596;
+}
+
+.toast-btn {
+  background: linear-gradient(135deg, #ffaacc, #ddaacc);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.toast-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(221, 172, 204, 0.5);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1132,14 +1213,46 @@ body * {
 }
 
 /* 编辑器工具栏 */
+.editor-container {
+  border: 1px solid rgba(197, 117, 150, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editor-tabs {
+  display: flex;
+  background: rgba(197, 117, 150, 0.05);
+  border-bottom: 1px solid rgba(197, 117, 150, 0.3);
+}
+
+.editor-tab {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.editor-tab:hover {
+  color: #c57596;
+}
+
+.editor-tab.active {
+  color: #c57596;
+  background: white;
+  border-bottom-color: #c57596;
+}
+
 .editor-toolbar {
   display: flex;
   align-items: center;
   gap: 0;
-  margin-bottom: 10px;
-  padding: 5px 10px;
+  padding: 8px 12px;
   background: rgba(197, 117, 150, 0.05);
-  border-radius: 6px;
+  border-bottom: 1px solid rgba(197, 117, 150, 0.2);
   flex-wrap: wrap;
 }
 
@@ -1170,6 +1283,145 @@ body * {
   background: linear-gradient(135deg, #c57596, #906a97);
   color: white;
   border-color: transparent;
+}
+
+.editor-panels {
+  position: relative;
+  min-height: 400px;
+}
+
+.editor-panel {
+  display: none;
+  width: 100%;
+  height: 400px;
+}
+
+.editor-panel.active {
+  display: block;
+}
+
+.editor-edit textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 15px;
+  resize: none;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.editor-preview {
+  background: white;
+  padding: 15px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.preview-content {
+  font-family: 'Microsoft YaHei', sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.preview-content h2 {
+  font-size: 20px;
+  color: #c57596;
+  margin: 20px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(197, 117, 150, 0.3);
+}
+
+.preview-content h3 {
+  font-size: 18px;
+  color: #906a97;
+  margin: 18px 0 8px;
+}
+
+.preview-content p {
+  margin: 10px 0;
+}
+
+.preview-content strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.preview-content em {
+  font-style: italic;
+}
+
+.preview-content del {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.preview-content code {
+  background: rgba(197, 117, 150, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', monospace;
+  font-size: 13px;
+}
+
+.preview-content pre {
+  background: #2d2d2d;
+  color: #ccc;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 15px 0;
+}
+
+.preview-content pre code {
+  background: transparent;
+  padding: 0;
+  color: #ccc;
+}
+
+.preview-content blockquote {
+  border-left: 4px solid #c57596;
+  padding: 10px 15px;
+  margin: 15px 0;
+  background: rgba(197, 117, 150, 0.05);
+  color: #666;
+  font-style: italic;
+}
+
+.preview-content ul,
+.preview-content ol {
+  margin: 10px 0;
+  padding-left: 30px;
+}
+
+.preview-content li {
+  margin: 5px 0;
+}
+
+.preview-content a {
+  color: #c57596;
+  text-decoration: none;
+}
+
+.preview-content a:hover {
+  text-decoration: underline;
+}
+
+.preview-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.preview-content hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ddaacc, transparent);
+  margin: 20px 0;
 }
 
 /* 发布文章页面 */

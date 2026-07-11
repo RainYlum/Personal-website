@@ -10,6 +10,13 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
+const axios = require('axios');
+
+function stripHtml(html) {
+  if (!html) return '';
+  const text = html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  return text.substring(0, 500);
+}
 
 const app = express();
 app.use(cors());
@@ -75,13 +82,13 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // 获取音乐列表 API
 app.get('/api/music/list', (req, res) => {
   const audioDir = path.join(__dirname, '..', 'assets', 'audio');
-  
+
   fs.readdir(audioDir, (err, files) => {
     if (err) {
       console.error('读取音乐目录失败:', err);
       return res.json({ success: false, message: '读取音乐目录失败', songs: [] });
     }
-    
+
     const audioExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.m4a'];
     const songs = files
       .filter(file => {
@@ -96,7 +103,7 @@ app.get('/api/music/list', (req, res) => {
           src: `/assets/audio/${file}`
         };
       });
-    
+
     res.json({ success: true, songs: songs });
   });
 });
@@ -587,6 +594,125 @@ app.post('/api/articles/:id/comments', async (req, res) => {
 // 登出接口
 app.post('/api/logout', (req, res) => {
   res.json({ success: true, message: '登出成功' });
+});
+
+// DeepSeek AI 对话代理接口
+app.post('/api/agent/chat', async (req, res) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: '未登录' });
+  }
+
+  try {
+    jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return res.status(401).json({ success: false, message: '登录已过期，请重新登录' });
+  }
+
+  const { messages } = req.body;
+
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ success: false, message: '无效的消息格式' });
+  }
+
+  const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+  const deepseekApiBase = process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com/v1';
+  const deepseekModel = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
+
+  if (!deepseekApiKey || deepseekApiKey === 'your_deepseek_api_key_here') {
+    return res.status(500).json({ success: false, message: 'DeepSeek API 密钥未配置' });
+  }
+
+  let knowledgeContext = '';
+  try {
+    const userMessage = messages[messages.length - 1]?.content || '';
+
+    const [articles] = await pool.query(
+      'SELECT id, title, summary, category FROM articles WHERE status = 1 ORDER BY created_at DESC'
+    );
+
+    if (articles.length > 0) {
+      const articleKeywords = new Set();
+      articles.forEach(article => {
+        const text = `${article.title} ${article.summary} ${article.category}`;
+        text.split(/[\s，。！？、；：\n\r]+/).forEach(word => {
+          if (word.length >= 2) {
+            articleKeywords.add(word);
+          }
+        });
+      });
+
+      const userKeywords = userMessage.split(/[\s，。！？、；：\n\r]+/).filter(word => word.length >= 2);
+      const hasMatch = userKeywords.some(keyword => articleKeywords.has(keyword));
+      const hasKnowledgeIntent = ['文章', '博客', '日记', '内容', '写的', '发布', '阅读', '看', '关于', '有什么', '哪些'].some(keyword => userMessage.includes(keyword));
+
+      if (hasMatch || hasKnowledgeIntent) {
+        knowledgeContext = '\n\n【网站文章知识库】\n';
+        knowledgeContext += `以下是网站上的 ${articles.length} 篇文章，请根据用户问题参考这些文章内容回答：\n\n`;
+        articles.forEach((article, index) => {
+          knowledgeContext += `${index + 1}. 《${article.title}》\n`;
+          knowledgeContext += `   分类：${article.category}\n`;
+          knowledgeContext += `   摘要：${article.summary}\n\n`;
+        });
+        knowledgeContext += '请根据用户的问题，优先参考上述文章内容进行回答。如果用户询问的是文章相关的内容，请引用文章标题和摘要中的信息。';
+      }
+    }
+  } catch (dbError) {
+    console.error('知识库检索错误:', dbError);
+  }
+
+  const messagesWithKnowledge = [...messages];
+  if (knowledgeContext) {
+    if (messagesWithKnowledge.length > 0 && messagesWithKnowledge[0].role === 'system') {
+      messagesWithKnowledge[0].content += knowledgeContext;
+    } else {
+      messagesWithKnowledge.unshift({ role: 'system', content: knowledgeContext });
+    }
+  }
+
+  try {
+    const response = await axios.post(
+      `${deepseekApiBase}/chat/completions`,
+      {
+        model: deepseekModel,
+        messages: messagesWithKnowledge,
+        temperature: 0.7,
+        max_tokens: 2048
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${deepseekApiKey}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 60000
+      }
+    );
+
+    if (response.data && response.data.choices && response.data.choices.length > 0) {
+      const content = response.data.choices[0].message?.content || '';
+      res.json({ success: true, content: content });
+    } else {
+      res.status(500).json({ success: false, message: 'API 返回数据格式异常' });
+    }
+  } catch (error) {
+    console.error('DeepSeek API 调用错误:', error.message);
+    let errorMessage = 'AI 服务暂时不可用';
+
+    if (error.response) {
+      if (error.response.status === 401) {
+        errorMessage = 'API 密钥无效';
+      } else if (error.response.status === 429) {
+        errorMessage = '请求过于频繁，请稍后重试';
+      } else if (error.response.data?.error?.message) {
+        errorMessage = error.response.data.error.message;
+      }
+    } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      errorMessage = '无法连接到 AI 服务';
+    }
+
+    res.status(500).json({ success: false, message: errorMessage });
+  }
 });
 
 // 静态资源服务（提供项目根目录的 HTML、CSS、JS、图片等文件）- 必须放在所有 API 路由之后

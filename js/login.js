@@ -23,7 +23,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       const redirect = params.get('redirect');
 
       if (redirect === 'user_center') {
-        window.location.href = '../user_center.html';
+        window.location.href = '/pages/user_center.html';
       } else if (redirect === 'post_article') {
         window.location.href = '../post_article.html';
       } else {
