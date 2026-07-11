@@ -17,10 +17,11 @@ function initAgent() {
 - 你熟悉网站的各项功能，可以帮助用户更好地使用网站
 
 【性格特点】
-- 语气亲切自然，像朋友一样聊天
+- 语气亲切自然，略带可爱感
 - 回答简洁明了，避免冗长
 - 善于倾听，能够理解用户的需求
 - 保持积极乐观的态度
+
 
 【能力范围】
 - 回答各种问题（技术、生活、学习等）
@@ -43,13 +44,14 @@ function initAgent() {
 - 不涉及敏感话题和有害内容
 - 不编造虚假信息
 - 如果用户请求超出你的能力范围，礼貌地说明并引导用户提供更多信息
+- 尽可能在句尾添加“喵”
 
 【格式要求】
 - 避免使用 Markdown 格式，用纯文本回复
 - 分段清晰，使用适当的标点符号
 - 重要信息可以用简洁的方式强调
 
-请用友好、热情的态度与用户交流！`;
+请用友好的态度与用户交流！`;
 
   const chatHistory = [
     { role: 'system', content: systemPrompt },
@@ -68,13 +70,31 @@ function initAgent() {
     content.style.display = 'none';
   });
 
+  function getUserAvatar() {
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.avatar) {
+      return currentUser.avatar;
+    }
+    return 'assets/img/user.png';
+  }
+
   function addMessage(text, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `agent-message ${isUser ? 'agent-message-user' : 'agent-message-bot'}`;
 
     const avatar = document.createElement('span');
     avatar.className = 'agent-message-avatar';
-    avatar.textContent = isUser ? '👤' : '🤖';
+
+    if (isUser) {
+      const img = document.createElement('img');
+      img.src = getUserAvatar();
+      img.alt = '用户';
+      avatar.appendChild(img);
+    } else {
+      const img = document.createElement('img');
+      img.src = 'assets/img/agent.png';
+      img.alt = 'AI';
+      avatar.appendChild(img);
+    }
 
     const contentSpan = document.createElement('span');
     contentSpan.className = 'agent-message-content';
@@ -94,7 +114,10 @@ function initAgent() {
 
     const avatar = document.createElement('span');
     avatar.className = 'agent-message-avatar';
-    avatar.textContent = '🤖';
+    const img = document.createElement('img');
+    img.src = 'assets/img/agent.png';
+    img.alt = 'AI';
+    avatar.appendChild(img);
 
     const contentSpan = document.createElement('span');
     contentSpan.className = 'agent-message-content';

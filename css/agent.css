@@ -3,39 +3,45 @@
   bottom: 30px;
   left: 30px;
   z-index: 9998;
-  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 40px rgba(255, 170, 204, 0.25);
   transition: all 0.3s ease;
-  overflow: hidden;
 }
 
 .agentComponent.minimized {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.agentComponent:not(.minimized) .agentComponent-toggle {
+  display: none;
 }
 
 .agentComponent-toggle {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 40px;
-  height: 40px;
+  width: 65px;
+  height: 65px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
   cursor: pointer;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(255, 170, 204, 0.4);
   transition: transform 0.3s ease;
+  background: transparent;
+  overflow: visible;
 }
 
-.agentComponent-toggle:hover {
-  transform: scale(1.1);
+.agentComponent-toggle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .agentComponent-content {
@@ -53,7 +59,7 @@
   align-items: center;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f5e5eb;
 }
 
 .agentComponent-header-actions {
@@ -64,14 +70,14 @@
 .agentComponent-title {
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: #554455;
 }
 
 .agentComponent-clear {
   background: none;
   border: none;
   font-size: 16px;
-  color: #999;
+  color: #bb99aa;
   cursor: pointer;
   padding: 5px;
   transition: color 0.2s;
@@ -85,14 +91,14 @@
   background: none;
   border: none;
   font-size: 18px;
-  color: #999;
+  color: #bb99aa;
   cursor: pointer;
   padding: 5px;
   transition: color 0.2s;
 }
 
 .agentComponent-close:hover {
-  color: #666;
+  color: #ddaacc;
 }
 
 .agentComponent-body {
@@ -109,35 +115,51 @@
 
 .agent-message {
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 15px;
 }
 
 .agent-message-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
   flex-shrink: 0;
+  overflow: hidden;
+  background: #f5e5eb;
+}
+
+.agent-message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .agent-message-user .agent-message-avatar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #ffaacc 0%, #ddaacc 100%);
 }
 
 .agent-message-content {
-  background: #f5f5f5;
+  position: relative;
+  background: #faf7f8;
   padding: 10px 14px;
-  border-radius: 16px;
+  border-radius: 4px 16px 16px 16px;
   font-size: 13px;
   line-height: 1.5;
-  color: #333;
+  color: #554455;
   max-width: 80%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.agent-message-content::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #faf7f8;
 }
 
 .agent-message-user {
@@ -145,8 +167,17 @@
 }
 
 .agent-message-user .agent-message-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffaacc 0%, #ddaacc 100%);
   color: white;
+  border-radius: 16px 4px 16px 16px;
+  box-shadow: 0 2px 8px rgba(255, 170, 204, 0.3);
+}
+
+.agent-message-user .agent-message-content::before {
+  left: auto;
+  right: -8px;
+  border-right: none;
+  border-left: 8px solid #ddaacc;
 }
 
 .agentComponent-input {
@@ -157,20 +188,21 @@
 .agentComponent-input input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid #ddd;
+  border: 1px solid #f0e0e5;
   border-radius: 20px;
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
+  background: #faf7f8;
 }
 
 .agentComponent-input input:focus {
-  border-color: #667eea;
+  border-color: #ddaacc;
 }
 
 .agentComponent-input button {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffaacc 0%, #ddaacc 100%);
   color: white;
   border: none;
   border-radius: 20px;
@@ -196,7 +228,7 @@
 .typing-indicator span {
   width: 6px;
   height: 6px;
-  background-color: #999;
+  background-color: #ddaacc;
   border-radius: 50%;
   animation: typing 1.4s infinite ease-in-out;
 }
