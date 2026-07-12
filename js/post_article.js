@@ -91,6 +91,18 @@ function updatePreview() {
   if (previewContent) {
     previewContent.innerHTML = parseMarkdown(content);
   }
+
+  const title = document.getElementById('articleTitle').value;
+  const previewTitle = document.getElementById('previewTitle');
+  if (previewTitle) {
+    previewTitle.textContent = title || '（请输入标题）';
+  }
+
+  const summary = document.getElementById('articleSummary').value;
+  const previewSummary = document.getElementById('previewSummary');
+  if (previewSummary) {
+    previewSummary.textContent = summary || '（请输入摘要）';
+  }
 }
 
 function initPostArticlePage() {
@@ -162,6 +174,10 @@ function initPostArticlePage() {
           break;
         case 'h3':
           before = '\n### ';
+          after = '\n';
+          break;
+        case 'h4':
+          before = '\n#### ';
           after = '\n';
           break;
         case 'quote':
@@ -238,6 +254,12 @@ function initPostArticlePage() {
   });
 
   articleContent.addEventListener('input', updatePreview);
+
+  const articleTitle = document.getElementById('articleTitle');
+  articleTitle.addEventListener('input', updatePreview);
+
+  const articleSummary = document.getElementById('articleSummary');
+  articleSummary.addEventListener('input', updatePreview);
 
   const imageUpload = document.getElementById('imageUpload');
   imageUpload.addEventListener('change', async function (e) {

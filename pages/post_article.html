@@ -24,6 +24,10 @@
           <div class="form-group">
             <label for="articleTitle">文章标题</label>
             <input type="text" id="articleTitle" placeholder="请输入文章标题" required>
+            <div class="title-preview">
+              <span class="preview-label">预览：</span>
+              <span class="preview-title" id="previewTitle"></span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -41,21 +45,24 @@
           <div class="form-group">
             <label for="articleSummary">文章摘要</label>
             <textarea id="articleSummary" rows="3" placeholder="请输入文章摘要（简短描述文章内容）" required></textarea>
+            <div class="summary-preview">
+              <span class="preview-label">预览：</span>
+              <span class="preview-summary" id="previewSummary"></span>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="articleContent">文章内容</label>
             <div class="editor-container">
-              <div class="editor-tabs">
-                <button class="editor-tab active" data-tab="edit">编辑</button>
-                <button class="editor-tab" data-tab="preview">预览</button>
-              </div>
               <div class="editor-toolbar">
                 <button type="button" class="toolbar-btn" data-action="h2" title="标题2">
                   <i class="bi bi-type-h2"></i>
                 </button>
                 <button type="button" class="toolbar-btn" data-action="h3" title="标题3">
                   <i class="bi bi-type-h3"></i>
+                </button>
+                <button type="button" class="toolbar-btn" data-action="h4" title="标题4">
+                  <i class="bi bi-type-h4"></i>
                 </button>
                 <div class="toolbar-divider"></div>
                 <button type="button" class="toolbar-btn" data-action="bold" title="加粗">
@@ -96,11 +103,19 @@
                 </button>
               </div>
               <div class="editor-panels">
-                <div class="editor-panel editor-edit active" id="editorEdit">
-                  <textarea id="articleContent" rows="20" placeholder="请输入文章内容..." required></textarea>
-                </div>
                 <div class="editor-panel editor-preview" id="editorPreview">
+                  <div class="preview-header">
+                    <i class="bi bi-eye"></i>
+                    <span>实时预览</span>
+                  </div>
                   <div class="preview-content" id="previewContent"></div>
+                </div>
+                <div class="editor-panel editor-edit" id="editorEdit">
+                  <div class="edit-header">
+                    <i class="bi bi-pencil"></i>
+                    <span>编辑器</span>
+                  </div>
+                  <textarea id="articleContent" rows="20" placeholder="请输入文章内容..." required></textarea>
                 </div>
               </div>
             </div>

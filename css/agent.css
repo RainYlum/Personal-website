@@ -259,3 +259,75 @@
     opacity: 1;
   }
 }
+
+/* ========================================
+   响应式布局 - 移动端适配
+   ======================================== */
+@media (max-width: 768px) {
+  .agentComponent {
+    bottom: 15px;
+    left: 15px;
+  }
+
+  .agentComponent.minimized {
+    width: 45px;
+    height: 45px;
+  }
+
+  .agentComponent-toggle {
+    width: 55px;
+    height: 55px;
+  }
+
+  .agentComponent-content {
+    width: calc(100vw - 30px);
+    max-width: 320px;
+    padding: 12px;
+  }
+
+  .agentComponent-body {
+    height: 220px;
+  }
+
+  .agent-message-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .agent-message-content {
+    font-size: 12px;
+    max-width: 75%;
+  }
+}
+
+@media (max-width: 480px) {
+  .agentComponent-content {
+    width: calc(100vw - 20px);
+    max-width: none;
+    padding: 10px;
+  }
+
+  .agentComponent.minimized {
+    width: 40px;
+    height: 40px;
+  }
+
+  .agentComponent-toggle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .agentComponent-body {
+    height: 200px;
+  }
+
+  .agentComponent-input input {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .agentComponent-input button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}

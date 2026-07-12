@@ -233,3 +233,74 @@
   color: #ddaacc;
   font-weight: 600;
 }
+
+/* ========================================
+   响应式布局 - 移动端适配
+   ======================================== */
+@media (max-width: 768px) {
+  .musicPlayer {
+    bottom: 15px;
+    right: 15px;
+  }
+
+  .musicPlayer.minimized {
+    width: 36px;
+    height: 36px;
+  }
+
+  .musicPlayer-toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .musicPlayer-content {
+    width: 260px;
+    padding: 15px;
+  }
+
+  .musicPlayer-title {
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .musicPlayer-content {
+    width: 220px;
+    padding: 12px;
+  }
+
+  .musicPlayer-title {
+    max-width: 140px;
+    font-size: 13px;
+  }
+
+  .musicPlayer-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .musicPlayer-play-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .musicPlayer-play-btn i {
+    font-size: 26px;
+  }
+
+  .musicPlayer-controls {
+    gap: 10px;
+  }
+
+  .musicPlayer-playlist {
+    max-height: 80px;
+  }
+
+  .playlist-item {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}

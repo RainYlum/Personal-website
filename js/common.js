@@ -49,13 +49,19 @@ function handleUserCardClick(e) {
   e.stopPropagation();
 
   const dropdown = document.getElementById('userDropdown');
+  const navMenu = document.getElementById('navMenu');
+  const userCard = document.getElementById('userCard');
 
   if (!currentUser) {
     window.location.href = '/pages/login.html';
     return;
   }
 
-  dropdown.classList.toggle('active');
+  if (navMenu && navMenu.contains(userCard)) {
+    window.location.href = '/pages/user_center.html';
+  } else {
+    dropdown.classList.toggle('active');
+  }
 }
 
 function handleDocumentClick(e) {
@@ -259,6 +265,74 @@ function initCommonHeader() {
       if (e.target === modalOverlay) {
         closeAvatarModal();
       }
+    });
+  }
+
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+  if (navToggle && navMenu) {
+    let navOverlay = document.getElementById('navOverlay');
+    if (!navOverlay) {
+      navOverlay = document.createElement('div');
+      navOverlay.id = 'navOverlay';
+      navOverlay.className = 'nav-overlay';
+      document.body.appendChild(navOverlay);
+    }
+
+    let originalParent = navMenu.parentNode;
+    let userCardOriginalParent = userCard ? userCard.parentNode : null;
+    let userCardOriginalSibling = userCard ? userCard.nextSibling : null;
+    let wasMoved = false;
+
+    function handleResponsive() {
+      if (window.innerWidth <= 768 && !wasMoved) {
+        navMenu.parentNode.removeChild(navMenu);
+        document.body.appendChild(navMenu);
+
+        if (userCard) {
+          userCard.parentNode.removeChild(userCard);
+          navMenu.insertBefore(userCard, navMenu.firstChild);
+        }
+
+        wasMoved = true;
+      } else if (window.innerWidth > 768 && wasMoved) {
+        navMenu.parentNode.removeChild(navMenu);
+        originalParent.appendChild(navMenu);
+
+        if (userCard && userCardOriginalParent) {
+          userCard.parentNode.removeChild(userCard);
+          if (userCardOriginalSibling) {
+            userCardOriginalParent.insertBefore(userCard, userCardOriginalSibling);
+          } else {
+            userCardOriginalParent.appendChild(userCard);
+          }
+        }
+
+        navMenu.classList.remove('active');
+        navOverlay.classList.remove('active');
+        wasMoved = false;
+      }
+    }
+
+    handleResponsive();
+    window.addEventListener('resize', handleResponsive);
+
+    navToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      navMenu.classList.toggle('active');
+      navOverlay.classList.toggle('active');
+    });
+
+    navOverlay.addEventListener('click', function () {
+      navMenu.classList.remove('active');
+      navOverlay.classList.remove('active');
+    });
+
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function () {
+        navMenu.classList.remove('active');
+        navOverlay.classList.remove('active');
+      });
     });
   }
 }
