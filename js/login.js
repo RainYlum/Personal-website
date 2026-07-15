@@ -25,7 +25,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       if (redirect === 'user_center') {
         window.location.href = '/pages/user_center.html';
       } else if (redirect === 'post_article') {
-        window.location.href = '../post_article.html';
+        window.location.href = '/pages/post_article.html';
       } else {
         window.location.href = '/index.html';
       }
