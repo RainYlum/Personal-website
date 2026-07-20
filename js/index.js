@@ -167,73 +167,6 @@ function parseMarkdown(content) {
   return html;
 }
 
-async function loadForumList(pushHistory = true) {
-  const mainContent = document.querySelector('.main-content');
-  if (!mainContent) return;
-
-  try {
-    const response = await fetch('/api/articles');
-    const data = await response.json();
-
-    if (data.success) {
-      const articles = data.data;
-      mainContent.innerHTML = `
-        <div class="forum-container">
-          <div class="forum-header">
-            <h1 class="forum-title">论坛</h1>
-            <p class="forum-subtitle">共 ${data.pagination.total} 篇文章</p>
-            <button class="post-article-btn" id="postArticleBtn">发布文章</button>
-          </div>
-          <div class="forum-list">
-            ${articles.map(article => `
-              <div class="forum-card" data-id="${article.id}">
-                <h3 class="forum-card-title">${article.title}</h3>
-                <p class="forum-card-summary">${article.summary}</p>
-                <div class="forum-card-meta">
-                  <span class="forum-card-category">${article.category}</span>
-                  <span class="forum-card-author">作者：${article.author_name}</span>
-                  <span class="forum-card-date">${formatDate(article.created_at)}</span>
-                  <span class="forum-card-views">浏览：${article.views}</span>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-
-      if (pushHistory) {
-        history.pushState({ page: 'forum' }, '', '?forum');
-      }
-
-      document.querySelectorAll('.forum-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const articleId = parseInt(card.dataset.id);
-          if (!isNaN(articleId)) {
-            loadArticle(articleId);
-          }
-        });
-      });
-
-      const postArticleBtn = document.getElementById('postArticleBtn');
-      if (postArticleBtn) {
-        postArticleBtn.addEventListener('click', () => {
-          const token = localStorage.getItem('token');
-          if (token) {
-            window.location.href = '/pages/post_article.html';
-          } else {
-            window.location.href = '/pages/login.html?redirect=post_article';
-          }
-        });
-      }
-    } else {
-      mainContent.innerHTML = `<p style="text-align: center; color: #999;">${data.message || '加载失败'}</p>`;
-    }
-  } catch (error) {
-    console.error('加载论坛列表失败:', error);
-    mainContent.innerHTML = '<p style="text-align: center; color: #999;">加载失败，请稍后重试</p>';
-  }
-}
-
 async function loadComments(articleId) {
   const commentsList = document.getElementById('commentsList');
   if (!commentsList) return;
@@ -328,28 +261,21 @@ document.addEventListener('click', (e) => {
 });
 
 function handlePopState(event) {
-  if (event.state) {
-    if (event.state.page === 'forum') {
-      loadForumList(false);
-    } else if (event.state.page === 'article' && event.state.id) {
-      loadArticle(event.state.id, false);
-    }
-  } else {
-    loadForumList(false);
+  if (event.state && event.state.page === 'article' && event.state.id) {
+    loadArticle(event.state.id, false);
   }
 }
 
 function initPageFromURL() {
   const params = new URLSearchParams(window.location.search);
   const articleId = params.get('article');
-  const forum = params.get('forum');
 
   if (articleId) {
     loadArticle(parseInt(articleId), false);
     history.replaceState({ page: 'article', id: parseInt(articleId) }, '', `?article=${articleId}`);
   } else {
-    loadForumList(false);
-    history.replaceState({ page: 'forum' }, '', '');
+    loadArticles();
+    history.replaceState({ page: 'article' }, '', '');
   }
 }
 
@@ -357,15 +283,6 @@ function initIndexPage() {
   initPageFromURL();
 
   window.addEventListener('popstate', handlePopState);
-
-  const forumLink = document.querySelector('.nav ul li:nth-child(2) a');
-  if (forumLink) {
-    forumLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await loadForumList();
-      scrollToMainContent();
-    });
-  }
 
   const leftNav = document.querySelector('.left-nav');
   const banner = document.querySelector('.banner');
