@@ -1337,31 +1337,6 @@ body * {
   background: white;
 }
 
-.title-preview,
-.summary-preview {
-  margin-top: 8px;
-  padding: 10px 12px;
-  background: rgba(197, 117, 150, 0.05);
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.preview-label {
-  color: #999;
-  margin-right: 8px;
-}
-
-.preview-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #906a97;
-}
-
-.preview-summary {
-  color: #555;
-  line-height: 1.5;
-}
-
 .preview-content {
   font-family: 'Microsoft YaHei', sans-serif;
   font-size: 15px;

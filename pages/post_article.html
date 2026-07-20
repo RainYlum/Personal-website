@@ -24,10 +24,6 @@
           <div class="form-group">
             <label for="articleTitle">文章标题</label>
             <input type="text" id="articleTitle" placeholder="请输入文章标题" required>
-            <div class="title-preview">
-              <span class="preview-label">预览：</span>
-              <span class="preview-title" id="previewTitle"></span>
-            </div>
           </div>
 
           <div class="form-group">
@@ -45,10 +41,6 @@
           <div class="form-group">
             <label for="articleSummary">文章摘要</label>
             <textarea id="articleSummary" rows="3" placeholder="请输入文章摘要（简短描述文章内容）" required></textarea>
-            <div class="summary-preview">
-              <span class="preview-label">预览：</span>
-              <span class="preview-summary" id="previewSummary"></span>
-            </div>
           </div>
 
           <div class="form-group">
@@ -75,13 +67,7 @@
                   <i class="bi bi-type-strikethrough"></i>
                 </button>
                 <div class="toolbar-divider"></div>
-                <button type="button" class="toolbar-btn" data-action="code" title="行内代码">
-                  <i class="bi bi-code"></i>
-                </button>
-                <button type="button" class="toolbar-btn" data-action="codeblock" title="代码块">
-                  <i class="bi bi-code-square"></i>
-                </button>
-                <div class="toolbar-divider"></div>
+
                 <button type="button" class="toolbar-btn" data-action="quote" title="引用">
                   <i class="bi bi-quote"></i>
                 </button>
