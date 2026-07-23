@@ -24,7 +24,7 @@ async function loadArticles() {
       updateArticleNav(data.data);
 
       if (data.data.length > 0) {
-        loadArticle(data.data[0].id);
+        loadArticle(data.data[0].id, false);
       }
     }
   } catch (error) {
@@ -98,9 +98,9 @@ async function loadArticle(articleId, pushHistory = true) {
 
       if (pushHistory) {
         history.pushState({ page: 'article', id: articleId }, '', `?article=${articleId}`);
+        scrollToMainContent();
       }
 
-      scrollToMainContent();
       loadComments(articleId);
       bindCommentSubmit(articleId);
     } else {
@@ -242,7 +242,11 @@ function bindCommentSubmit(articleId) {
 function scrollToMainContent() {
   const mainContent = document.querySelector('.main-content');
   if (mainContent) {
-    mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (typeof smoothScrollTo === 'function') {
+      smoothScrollTo(mainContent, { duration: 600, offset: -80 });
+    } else {
+      mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 }
 
@@ -254,7 +258,11 @@ document.addEventListener('click', (e) => {
     if (targetId && targetId !== '#') {
       const targetElement = document.querySelector(targetId);
       if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (typeof smoothScrollTo === 'function') {
+          smoothScrollTo(targetElement, { duration: 600, offset: -80 });
+        } else {
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   }
@@ -280,7 +288,10 @@ function initPageFromURL() {
 }
 
 function initIndexPage() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   initPageFromURL();
+
+  initBannerCarousel();
 
   window.addEventListener('popstate', handlePopState);
 
@@ -302,8 +313,72 @@ function initIndexPage() {
       } else {
         leftNav.classList.remove('fixed');
       }
+
+      if (nav) {
+        nav.style.transition = 'transform 0.3s ease';
+        if (window.scrollY <= 5) {
+          nav.style.transform = 'translateY(0)';
+        } else {
+          nav.style.transform = 'translateY(-100%)';
+        }
+      }
     });
+
   }
+
+  //banner滚动到主内容
+  const main = document.getElementById('main');
+  const bannerimg = document.querySelector('.banner');
+  if (main) {
+    let isScrollingFromTop = false;
+    let isScrollingToTop = false;
+
+    window.addEventListener('wheel', (e) => {
+      const bannerHeight = bannerimg ? bannerimg.offsetHeight : 0;
+      const nearBannerBottom = window.scrollY > 0 && window.scrollY < bannerHeight + 100;
+
+      if (window.scrollY === 0 && e.deltaY > 0 && !isScrollingFromTop) {
+        e.preventDefault();
+        isScrollingFromTop = true;
+        if (typeof smoothScrollTo === 'function') {
+          smoothScrollTo(main, { duration: 800 });
+        } else {
+          main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        setTimeout(() => {
+          isScrollingFromTop = false;
+        }, 1000);
+      }
+    }, { passive: false });
+  }
+}
+
+function initBannerCarousel() {
+  const bannerImgs = document.querySelectorAll('.banner-img');
+  if (bannerImgs.length <= 1) return;
+
+  let currentIndex = 0;
+  const interval = 10000;
+  let timer;
+
+  function showImage(index) {
+    bannerImgs.forEach((img, i) => {
+      if (i === index) {
+        img.classList.add('active');
+      } else {
+        img.classList.remove('active');
+      }
+    });
+    currentIndex = index;
+  }
+
+  function nextImage() {
+    const nextIndex = (currentIndex + 1) % bannerImgs.length;
+    showImage(nextIndex);
+  }
+
+  timer = setInterval(nextImage, interval);
 }
 
 document.addEventListener('componentsLoaded', initIndexPage);

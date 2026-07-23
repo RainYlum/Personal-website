@@ -383,3 +383,36 @@ function showErrorToast(message, onClose = null) {
 function showInfoToast(message, onClose = null) {
   showToast('提示', message, 'ℹ️', onClose);
 }
+
+function smoothScrollTo(target, options = {}) {
+  const { duration = 500, offset = 0 } = options;
+  
+  if (typeof target === 'string') {
+    target = document.querySelector(target);
+  }
+  
+  if (!target) return;
+  
+  const targetPosition = target.getBoundingClientRect().top + window.pageYOffset + offset;
+  const startPosition = window.pageYOffset;
+  const distance = targetPosition - startPosition;
+  const startTime = performance.now();
+  
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+    
+    window.scrollTo({
+      top: startPosition + distance * easeOutCubic,
+      behavior: 'smooth'
+    });
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+  
+  requestAnimationFrame(animate);
+}

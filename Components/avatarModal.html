@@ -1,0 +1,20 @@
+<div class="modal-overlay" id="avatarModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>更换头像</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="avatar-preview">
+        <img id="previewImg" src="/assets/img/user.png" alt="预览">
+      </div>
+      <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/gif" style="display: none;">
+      <button class="upload-btn" id="selectFileBtn">选择图片</button>
+      <p class="upload-hint">支持 JPG、PNG、GIF 格式，最大 5MB</p>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" id="cancelBtn">取消</button>
+      <button class="confirm-btn" id="uploadBtn">上传</button>
+    </div>
+  </div>
+</div>

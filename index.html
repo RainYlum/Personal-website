@@ -32,7 +32,10 @@
     <h2 class="banner-title">展示标题</h2>
     <p class="banner-docs">ここからRE:START！</p>
     <div class="banner-imgs">
+      <img class="banner-img active" src="/assets/img/banner-mnr.png" alt="展示图片">
       <img class="banner-img" src="/assets/img/banner-airi.png" alt="展示图片">
+      <img class="banner-img" src="/assets/img/banner-szk.png" alt="展示图片">
+      <img class="banner-img" src="/assets/img/banner-hrk.png" alt="展示图片">
     </div>
   </div>
 
@@ -43,11 +46,31 @@
     </div>
 
     <div class="left-nav">
-      <h2 class="nav-title">侧边栏</h2>
+      <div class="user-card" id="userCard">
+        <img class="user-img" src="/assets/img/user.png" alt="用户头像">
+        <p class="user-name">未登录</p>
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dropdown-header" id="dropdownHeader">
+            <img class="dropdown-avatar" src="/assets/img/user.png" alt="头像">
+            <div class="dropdown-info">
+              <p class="dropdown-name">测试用户</p>
+              <p class="dropdown-email">test@example.com</p>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" id="changeAvatarBtn">更换头像</button>
+            <button class="dropdown-item" id="logoutBtn">退出登录</button>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="nav-title">导航</h2>
       <ul>
-        <li><a href="#">导航项1</a></li>
-        <li><a href="#">导航项2</a></li>
-        <li><a href="#">导航项3</a></li>
+        <li><a href="/index.html">首页</a></li>
+        <li><a href="/pages/forum.html">论坛</a></li>
+        <li><a href="/pages/user_center.html">用户中心</a></li>
       </ul>
     </div>
 

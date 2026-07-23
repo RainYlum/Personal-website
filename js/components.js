@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const currentPath = window.location.pathname;
+  const skipHeaderPages = ['/pages/user_center.html', '/pages/forum.html', '/pages/post_article.html'];
+  const showHeader = !skipHeaderPages.includes(currentPath);
+
   const components = [
-    { url: '/Components/header.html', position: 'beforeBegin', targetId: 'main' },
+    ...(showHeader ? [{ url: '/Components/header.html', position: 'beforeBegin', targetId: 'main' }] : []),
+    ...(!showHeader ? [{ url: '/Components/avatarModal.html' }] : []),
     { url: '/Components/footer.html', position: 'afterEnd', targetId: 'main' },
     { url: '/Components/agent.html' },
     { url: '/Components/musicPlayer.html' }

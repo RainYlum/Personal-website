@@ -168,6 +168,7 @@ body * {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  z-index: 10;
 }
 
 .banner-docs {
@@ -178,11 +179,30 @@ body * {
   font-size: 20px;
   color: #906a97;
   font-weight: bold;
+  z-index: 10;
 }
 
 
+.banner-imgs {
+  position: relative;
+  overflow: hidden;
+}
+
 .banner-img {
   width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.banner-img:first-child {
+  position: relative;
+}
+
+.banner-img.active {
+  opacity: 1;
 }
 
 /* 主体 */
@@ -219,17 +239,29 @@ body * {
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.left-nav ul {
+  padding-left: 0;
+  margin-top: 10px;
+}
+
 .left-nav ul li {
   list-style-type: none;
+  margin-bottom: 10px;
 }
 
 .left-nav ul li a {
   text-decoration: none;
   color: #9a78a0;
+  display: block;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
 }
 
 .left-nav ul li a:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  background-color: rgba(197, 117, 150, 0.1);
+  color: #906a97;
 }
 
 .left-nav.fixed {
@@ -238,10 +270,70 @@ body * {
   z-index: 100;
 }
 
+.left-nav.fixed.no-header {
+  top: 20px;
+}
+
 .nav-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   color: #9b74a2;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(197, 117, 150, 0.2);
+}
+
+.left-nav .user-card {
+  position: static;
+  transform: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+}
+
+.left-nav .user-name {
+  display: block;
+  font-weight: 600;
+  color: #906a97;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.left-nav .user-img {
+  width: 50px;
+  height: 50px;
+  margin-left: 0;
+  border-radius: 50%;
+  border: 2px solid #c57596;
+}
+
+.left-nav .user-dropdown {
+  position: absolute;
+  top: 20px;
+  right: -230px;
+  width: 220px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.left-nav .user-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 /* 文章内容样式 */
